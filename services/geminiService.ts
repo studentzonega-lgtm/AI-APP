@@ -1,94 +1,64 @@
-import { GoogleGenAI, Type, Schema } from "@google/genai";
-import { ParsedResponse } from "../types";
+import { GoogleGenAI, Type } from "@google/genai";
+import { ExtractedDataset } from "../types";
 
 const SYSTEM_INSTRUCTION = `
-You are an AI system that converts uploaded research papers (PDFs) into a fully structured, AI-readable representation.
-The goal is to help the user create a searchable research database and generate literature reviews for thesis writing.
+You are a High-Precision Research Data Extractor. 
+Your ONLY goal is to convert the uploaded PDF research paper into a structured, machine-readable JSON dataset.
+You must process the document PAGE BY PAGE.
 
-Your tasks:
-PDF Ingestion & Understanding
-Read the entire document deeply.
-Identify & extract the following accurately:
-Title, Authors, Abstract, Keywords, Section headings, Sub-sections, Paragraphs, Equations, Tables, Figures (with captions), References.
+STRICT RULES (NO HALLUCINATIONS):
+1. DO NOT summarize. DO NOT interpret. DO NOT shorten text.
+2. Extract the EXACT text content as it appears in the document.
+3. If a page is empty, return an empty entry for that page.
+4. Do not invent equations or numbers.
+5. Your output must be a valid JSON object.
 
-Output Format (Very Important):
-You must return a JSON object containing three distinct parts:
-1. "summary": A clean research summary in Markdown.
-   - Overview
-   - Problem statement
-   - Methodology
-   - Results
-   - Limitations
-   - Key findings
-   - Future scope
-2. "latex": The full paper converted to LaTeX format.
-   - Inline math -> $ ... $
-   - Display math -> [ ... ]
-   - Tables -> \\begin{table}...\\end{table}
-   - Figures -> \\begin{figure}...\\end{figure}
-   - References -> BibTeX style
-3. "database": A structured JSON object for a research database.
-   - metadata: { title, authors, year, keywords }
-   - sections: array of { heading, text, equations, tables, figures }
-   - references: array of strings
+YOUR TASK:
+Iterate through every single page of the PDF and extract:
+- Page Number: The physical page index (1, 2, 3...).
+- Text Content: The full raw text of the page, preserving reading order.
+- Tables: Convert any tables on the page into Markdown format.
+- Figure Captions: Extract ONLY the caption text (e.g., "Figure 1: Performance Graph"). Do not describe the image visually.
+- Footnotes: Any footnotes found on that specific page.
 
-Rules:
-- Never hallucinate equations, tables, or numbers.
-- Maintain accuracy above creativity.
-- Tone: Professional academic.
+METADATA EXTRACTION:
+Also extract global metadata: Title, Authors, Year, Keywords, and DOI (if available).
 `;
 
-const RESPONSE_SCHEMA: Schema = {
+const RESPONSE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
-    summary: {
-      type: Type.STRING,
-      description: "The clean research summary in Markdown format with headers like Overview, Problem Statement, etc.",
-    },
-    latex: {
-      type: Type.STRING,
-      description: "The full content of the paper converted to a valid LaTeX document source code.",
-    },
-    database: {
+    metadata: {
       type: Type.OBJECT,
-      description: "The structured JSON database representation.",
       properties: {
-        metadata: {
-          type: Type.OBJECT,
-          properties: {
-            title: { type: Type.STRING },
-            authors: { type: Type.ARRAY, items: { type: Type.STRING } },
-            year: { type: Type.STRING },
-            keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
-          },
-          required: ["title", "authors", "year", "keywords"],
-        },
-        sections: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              heading: { type: Type.STRING },
-              text: { type: Type.STRING },
-              equations: { type: Type.ARRAY, items: { type: Type.STRING } },
-              tables: { type: Type.ARRAY, items: { type: Type.STRING } },
-              figures: { type: Type.ARRAY, items: { type: Type.STRING } },
-            },
-            required: ["heading", "text"],
-          },
-        },
-        references: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-        },
+        title: { type: Type.STRING },
+        authors: { type: Type.ARRAY, items: { type: Type.STRING } },
+        year: { type: Type.STRING },
+        keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+        doi: { type: Type.STRING, nullable: true },
       },
-      required: ["metadata", "sections", "references"],
+      required: ["title", "authors", "year", "keywords"],
+    },
+    pages: {
+      type: Type.ARRAY,
+      description: "Array containing extraction for every single page in the PDF.",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          page_number: { type: Type.INTEGER },
+          text_content: { type: Type.STRING, description: "Full raw text of this page." },
+          tables_markdown: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Tables converted to Markdown." },
+          figures_captions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Captions of figures on this page." },
+          footnotes: { type: Type.ARRAY, items: { type: Type.STRING } },
+        },
+        required: ["page_number", "text_content", "tables_markdown", "figures_captions", "footnotes"],
+      },
     },
   },
-  required: ["summary", "latex", "database"],
+  required: ["metadata", "pages"],
 };
 
-export const analyzePdf = async (base64Pdf: string): Promise<ParsedResponse> => {
+export const analyzePdf = async (base64Pdf: string, modelName: string): Promise<ExtractedDataset> => {
   if (!process.env.API_KEY) {
     throw new Error("API Key is missing. Please set the API_KEY environment variable.");
   }
@@ -96,9 +66,8 @@ export const analyzePdf = async (base64Pdf: string): Promise<ParsedResponse> => 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
-    // Using gemini-3-pro-preview for complex reasoning and large context handling suitable for research papers
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: modelName,
       contents: {
         parts: [
           {
@@ -108,7 +77,7 @@ export const analyzePdf = async (base64Pdf: string): Promise<ParsedResponse> => 
             },
           },
           {
-            text: "Analyze this research paper and extract the required information according to the system instructions.",
+            text: "Perform a full page-by-page raw data extraction of this document. Return strictly formatted JSON.",
           },
         ],
       },
@@ -124,7 +93,7 @@ export const analyzePdf = async (base64Pdf: string): Promise<ParsedResponse> => 
       throw new Error("No response received from Gemini.");
     }
 
-    const parsed = JSON.parse(responseText) as ParsedResponse;
+    const parsed = JSON.parse(responseText) as ExtractedDataset;
     return parsed;
   } catch (error) {
     console.error("Gemini Analysis Error:", error);

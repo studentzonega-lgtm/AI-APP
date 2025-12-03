@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, BrainCircuit, FileText, Database } from 'lucide-react';
+import { Loader2, Database, FileDigit, ScanLine } from 'lucide-react';
 
 export const LoadingState: React.FC = () => {
   const [step, setStep] = useState(0);
   const steps = [
-    "Reading document structure...",
-    "Extracting key methodologies...",
-    "Converting equations to LaTeX...",
-    "Formatting JSON database...",
-    "Finalizing summary..."
+    "Scanning document structure...",
+    "Extracting page-by-page raw text...",
+    "Converting tables to Markdown...",
+    "Isolating figure captions...",
+    "Compiling JSON dataset..."
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setStep((prev) => (prev + 1) % steps.length);
-    }, 4000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [steps.length]);
 
@@ -30,17 +30,17 @@ export const LoadingState: React.FC = () => {
         
         {/* Floating Icons */}
         <div className="absolute -top-4 -right-4 bg-white p-2 rounded-xl shadow-lg border border-slate-100 animate-bounce [animation-delay:-0.3s]">
-          <FileText className="w-5 h-5 text-emerald-500" />
+          <FileDigit className="w-5 h-5 text-emerald-500" />
         </div>
         <div className="absolute -bottom-2 -left-4 bg-white p-2 rounded-xl shadow-lg border border-slate-100 animate-bounce [animation-delay:-0.15s]">
-          <BrainCircuit className="w-5 h-5 text-purple-500" />
+          <Database className="w-5 h-5 text-purple-500" />
         </div>
         <div className="absolute bottom-6 -right-8 bg-white p-2 rounded-xl shadow-lg border border-slate-100 animate-bounce">
-          <Database className="w-5 h-5 text-amber-500" />
+          <ScanLine className="w-5 h-5 text-amber-500" />
         </div>
       </div>
 
-      <h3 className="text-2xl font-bold text-slate-800 mb-2">Analyzing Paper</h3>
+      <h3 className="text-2xl font-bold text-slate-800 mb-2">Extracting Dataset</h3>
       
       {/* Text Carousel */}
       <div className="h-8 relative w-full max-w-md text-center overflow-hidden">
@@ -58,7 +58,7 @@ export const LoadingState: React.FC = () => {
       </div>
       
       <p className="mt-4 text-slate-400 text-sm max-w-xs text-center mx-auto">
-        Deep reading in progress. This may take up to a minute.
+        Processing page-by-page. This ensures accuracy and avoids timeouts.
       </p>
     </div>
   );

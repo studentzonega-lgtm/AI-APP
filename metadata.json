@@ -1,5 +1,5 @@
 {
-  "name": "ScholarParse AI",
-  "description": "A professional tool to convert research papers (PDF) into structured summaries, LaTeX code, and database-ready JSON using Gemini 1.5 Pro.",
+  "name": "ScholarParse Dataset Extractor",
+  "description": "Extract raw, page-by-page research data from PDFs into structured JSON for AI training.",
   "requestFramePermissions": []
 }

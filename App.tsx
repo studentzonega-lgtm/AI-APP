@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
-import { BookOpen, Sparkles, Github, ArrowUpRight, Database, FileCode2, FileText, Bot } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Sparkles, Github, ArrowUpRight, Database, FileSpreadsheet, ScanLine, Bot, Zap, BrainCircuit } from 'lucide-react';
 import { FileUpload } from './components/FileUpload';
 import { ResultsView } from './components/ResultsView';
 import { LoadingState } from './components/LoadingState';
 import { analyzePdf } from './services/geminiService';
-import { AppStatus, ParsedResponse } from './types';
+import { AppStatus, ExtractedDataset, ModelOption } from './types';
 
 function App() {
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
-  const [result, setResult] = useState<ParsedResponse | null>(null);
+  const [result, setResult] = useState<ExtractedDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<ModelOption>('gemini-2.5-flash');
 
-  const handleFileSelect = async (base64: string, fileName: string) => {
+  const handleFileSelect = async (base64: string) => {
     setStatus(AppStatus.PROCESSING);
     setError(null);
     setResult(null);
 
     try {
-      const data = await analyzePdf(base64);
+      const data = await analyzePdf(base64, selectedModel);
       setResult(data);
       setStatus(AppStatus.SUCCESS);
     } catch (err: any) {
@@ -52,17 +53,47 @@ function App() {
             onClick={resetApp}
           >
             <div className="bg-gradient-to-br from-indigo-600 to-violet-600 p-2 rounded-xl shadow-lg group-hover:shadow-indigo-500/30 transition-shadow">
-              <BookOpen className="w-6 h-6 text-white" />
+              <Database className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-              ScholarParse AI
+              ScholarParse <span className="font-light text-slate-500">Dataset</span>
             </span>
           </div>
-          <div className="flex items-center gap-6">
-             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60 shadow-sm backdrop-blur-sm">
-               <Sparkles className="w-4 h-4 text-indigo-500" />
-               <span className="text-xs font-semibold text-slate-600 tracking-wide">GEMINI 1.5 PRO</span>
+          
+          <div className="flex items-center gap-4">
+             {/* Model Selector */}
+             <div className="hidden md:flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <button
+                  onClick={() => setSelectedModel('gemini-2.5-flash')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    selectedModel === 'gemini-2.5-flash' 
+                    ? 'bg-white text-amber-600 shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  Gemini Flash (Fast)
+                </button>
+                <button
+                  onClick={() => setSelectedModel('gemini-3-pro-preview')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    selectedModel === 'gemini-3-pro-preview' 
+                    ? 'bg-white text-indigo-600 shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  <BrainCircuit className="w-3.5 h-3.5" />
+                  Gemini Pro (Deep)
+                </button>
              </div>
+
+             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60 shadow-sm backdrop-blur-sm">
+               <Sparkles className={`w-4 h-4 ${selectedModel === 'gemini-3-pro-preview' ? 'text-indigo-500' : 'text-amber-500'}`} />
+               <span className="text-xs font-semibold text-slate-600 tracking-wide uppercase">
+                 {selectedModel === 'gemini-3-pro-preview' ? 'High Precision' : 'High Speed'}
+               </span>
+             </div>
+
              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 transition-colors transform hover:scale-110">
                <Github className="w-6 h-6" />
              </a>
@@ -77,13 +108,13 @@ function App() {
         {status === AppStatus.IDLE && (
           <div className="text-center mb-16 max-w-4xl mx-auto animate-fade-in-up">
             <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tighter leading-tight">
-              Turn Research Papers into <br/>
+              Build AI Datasets from <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">
-                Structured Intelligence
+                Research Papers
               </span>
             </h1>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-              Upload any PDF research paper. We'll extract a clean summary, convert it to LaTeX, and structure the data for your research database.
+              Upload PDF. Get raw, page-by-page JSON extraction. <br/> No hallucinations. No summaries. Perfect for fine-tuning other AI models.
             </p>
           </div>
         )}
@@ -91,25 +122,25 @@ function App() {
         {/* Upload Section */}
         {status === AppStatus.IDLE && (
           <div className="w-full max-w-3xl animate-fade-in-up [animation-delay:200ms]">
-            <FileUpload onFileSelect={handleFileSelect} disabled={false} />
+            <FileUpload onFileSelect={(base64) => handleFileSelect(base64)} disabled={false} />
             
             {/* Capability Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left">
               {[
                 { 
-                  icon: <FileText className="w-6 h-6 text-emerald-500" />, 
-                  title: "Smart Summaries", 
-                  desc: "Extract methodology, results, and key findings into clean markdown." 
+                  icon: <ScanLine className="w-6 h-6 text-emerald-500" />, 
+                  title: "Page-by-Page", 
+                  desc: "Strict extraction mapped to page numbers. Preserves document structure." 
                 },
                 { 
-                  icon: <FileCode2 className="w-6 h-6 text-sky-500" />, 
-                  title: "LaTeX Conversion", 
-                  desc: "Get perfect math and table formatting, ready for your publications." 
+                  icon: <FileSpreadsheet className="w-6 h-6 text-sky-500" />, 
+                  title: "Raw Data Only", 
+                  desc: "Tables, figures, and text extracted exactly as is. No summarization." 
                 },
                 { 
                   icon: <Database className="w-6 h-6 text-amber-500" />, 
-                  title: "JSON for Databases", 
-                  desc: "Output structured data for your personal knowledge base." 
+                  title: "Training Ready", 
+                  desc: "Exports clean JSON perfectly formatted for AI model instruction/training." 
                 },
               ].map((feature, i) => (
                 <div key={i} className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all">
@@ -137,7 +168,7 @@ function App() {
             <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <Bot className="w-8 h-8"/>
             </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-4">Analysis Failed</h3>
+            <h3 className="text-2xl font-bold text-slate-800 mb-4">Extraction Failed</h3>
             <p className="text-slate-500 mb-8 leading-relaxed">{error}</p>
             <button 
               onClick={resetApp}
@@ -154,16 +185,18 @@ function App() {
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mb-8 animate-in slide-in-from-bottom-4">
               <div>
                 <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider mb-2 inline-block">
-                  Analysis Complete
+                  Extraction Complete
                 </span>
-                <h2 className="text-3xl font-bold text-slate-900">Extracted Intelligence</h2>
-                <p className="text-slate-500 mt-1">Review the summary, LaTeX source, and structured data below.</p>
+                <h2 className="text-3xl font-bold text-slate-900">Dataset Generated</h2>
+                <p className="text-slate-500 mt-1">
+                  {result.pages.length} pages processed. Ready for export.
+                </p>
               </div>
               <button 
                 onClick={resetApp}
                 className="mt-4 md:mt-0 flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
               >
-                Analyze Another Paper
+                Extract New Dataset
                 <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
@@ -180,7 +213,7 @@ function App() {
             &copy; {new Date().getFullYear()} ScholarParse AI. All rights reserved.
           </p>
           <p className="text-sm text-slate-400">
-            Designed for Academic Excellence.
+            Professional Dataset Extraction Tool.
           </p>
         </div>
       </footer>

@@ -1,28 +1,22 @@
+export interface PageContent {
+  page_number: number;
+  text_content: string;
+  tables_markdown: string[];
+  figures_captions: string[];
+  footnotes: string[];
+}
+
 export interface ResearchMetadata {
   title: string;
   authors: string[];
   year: string;
   keywords: string[];
+  doi?: string;
 }
 
-export interface ResearchSection {
-  heading: string;
-  text: string;
-  equations: string[];
-  tables: string[];
-  figures: string[];
-}
-
-export interface ResearchDatabase {
+export interface ExtractedDataset {
   metadata: ResearchMetadata;
-  sections: ResearchSection[];
-  references: string[];
-}
-
-export interface ParsedResponse {
-  summary: string;
-  latex: string;
-  database: ResearchDatabase;
+  pages: PageContent[];
 }
 
 export enum AppStatus {
@@ -32,4 +26,6 @@ export enum AppStatus {
   ERROR = 'ERROR',
 }
 
-export type TabOption = 'summary' | 'latex' | 'json';
+export type ViewOption = 'json' | 'raw_text';
+
+export type ModelOption = 'gemini-3-pro-preview' | 'gemini-2.5-flash';
