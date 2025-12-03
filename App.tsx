@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, Sparkles, Github, ArrowUpRight, Database, FileSpreadsheet, ScanLine, Bot, Zap, BrainCircuit } from 'lucide-react';
+import { Sparkles, Github, ArrowUpRight, Database, FileSpreadsheet, ScanLine, Bot, Zap, BrainCircuit } from 'lucide-react';
 import { FileUpload } from './components/FileUpload';
 import { ResultsView } from './components/ResultsView';
 import { LoadingState } from './components/LoadingState';
