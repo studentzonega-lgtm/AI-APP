@@ -1,8 +1,9 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { ExtractedDataset } from "../types";
 
 const SYSTEM_INSTRUCTION = `
-You are a High-Precision Research Data Extractor. 
+You are a High-Precision Research Data Extractor designed to create training datasets for AI models.
 Your ONLY goal is to convert the uploaded PDF research paper into a structured, machine-readable JSON dataset.
 You must process the document PAGE BY PAGE.
 
@@ -17,8 +18,9 @@ YOUR TASK:
 Iterate through every single page of the PDF and extract:
 - Page Number: The physical page index (1, 2, 3...).
 - Text Content: The full raw text of the page, preserving reading order.
-- Tables: Convert any tables on the page into Markdown format.
-- Figure Captions: Extract ONLY the caption text (e.g., "Figure 1: Performance Graph"). Do not describe the image visually.
+- Equations: Identify ALL mathematical equations on the page. Convert them to standard LaTeX format (e.g., $E=mc^2$).
+- Tables: Convert any tables on the page into strict Markdown format.
+- Figure Captions: Extract ONLY the caption text (e.g., "Figure 1: Performance Graph").
 - Footnotes: Any footnotes found on that specific page.
 
 METADATA EXTRACTION:
@@ -47,11 +49,16 @@ const RESPONSE_SCHEMA = {
         properties: {
           page_number: { type: Type.INTEGER },
           text_content: { type: Type.STRING, description: "Full raw text of this page." },
+          equations: { 
+            type: Type.ARRAY, 
+            items: { type: Type.STRING }, 
+            description: "List of all math equations on this page converted to LaTeX format." 
+          },
           tables_markdown: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Tables converted to Markdown." },
           figures_captions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Captions of figures on this page." },
           footnotes: { type: Type.ARRAY, items: { type: Type.STRING } },
         },
-        required: ["page_number", "text_content", "tables_markdown", "figures_captions", "footnotes"],
+        required: ["page_number", "text_content", "equations", "tables_markdown", "figures_captions", "footnotes"],
       },
     },
   },
@@ -77,7 +84,7 @@ export const analyzePdf = async (base64Pdf: string, modelName: string): Promise<
             },
           },
           {
-            text: "Perform a full page-by-page raw data extraction of this document. Return strictly formatted JSON.",
+            text: "Perform a full page-by-page raw data extraction of this document. Return strictly formatted JSON with LaTeX equations.",
           },
         ],
       },

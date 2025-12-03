@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ExtractedDataset, ViewOption } from '../types';
 import { Copy, Check, Download, FileJson, AlignLeft } from 'lucide-react';
@@ -13,7 +14,23 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ data }) => {
   const getFormattedJson = () => JSON.stringify(data, null, 2);
   
   const getRawText = () => {
-    return data.pages.map(p => `--- PAGE ${p.page_number} ---\n\n${p.text_content}\n`).join('\n');
+    return data.pages.map(p => {
+      let content = `--- PAGE ${p.page_number} ---\n\n[TEXT CONTENT]\n${p.text_content}\n`;
+      
+      if (p.equations && p.equations.length > 0) {
+        content += `\n[EXTRACTED EQUATIONS (LaTeX)]\n${p.equations.map(eq => `- ${eq}`).join('\n')}\n`;
+      }
+
+      if (p.tables_markdown && p.tables_markdown.length > 0) {
+        content += `\n[EXTRACTED TABLES (Markdown)]\n${p.tables_markdown.join('\n\n')}\n`;
+      }
+
+      if (p.figures_captions && p.figures_captions.length > 0) {
+        content += `\n[FIGURE CAPTIONS]\n${p.figures_captions.map(c => `- ${c}`).join('\n')}\n`;
+      }
+
+      return content;
+    }).join('\n' + '='.repeat(60) + '\n\n');
   };
 
   const activeContent = activeTab === 'json' ? getFormattedJson() : getRawText();
@@ -63,7 +80,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ data }) => {
               }`}
           >
             <AlignLeft className="w-4 h-4" />
-            Raw Text (Page-wise)
+            Raw Text & Equations
           </button>
         </div>
 

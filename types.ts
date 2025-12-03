@@ -1,9 +1,11 @@
+
 export interface PageContent {
   page_number: number;
   text_content: string;
   tables_markdown: string[];
   figures_captions: string[];
   footnotes: string[];
+  equations: string[];
 }
 
 export interface ResearchMetadata {
