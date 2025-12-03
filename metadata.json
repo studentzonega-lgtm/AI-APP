@@ -1,0 +1,5 @@
+{
+  "name": "ScholarParse AI",
+  "description": "A professional tool to convert research papers (PDF) into structured summaries, LaTeX code, and database-ready JSON using Gemini 1.5 Pro.",
+  "requestFramePermissions": []
+}
