@@ -52,7 +52,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ data }) => {
               className={`flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200
                 ${activeTab === tab.id
                   ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
             >
               {tab.icon}
@@ -86,11 +86,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ data }) => {
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden bg-white rounded-2xl shadow-xl border border-slate-200/60 flex flex-col">
         {/* Header Strip */}
-        <div className="h-8 bg-slate-50 border-b border-slate-100 flex items-center px-4 space-x-2">
-           <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
-           <div className="w-3 h-3 rounded-full bg-amber-400/80"></div>
-           <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
-           <div className="ml-4 text-xs text-slate-400 font-mono">
+        <div className="h-8 bg-slate-100 border-b border-slate-200/80 flex items-center px-4 space-x-2">
+           <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+           <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+           <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+           <div className="ml-4 text-xs text-slate-500 font-mono">
              {activeTab === 'summary' ? 'preview.md' : activeTab === 'latex' ? 'source.tex' : 'database.json'}
            </div>
         </div>
@@ -103,24 +103,19 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ data }) => {
                 prose-headings:text-slate-900 prose-headings:font-bold prose-headings:tracking-tight
                 prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
                 prose-strong:text-slate-800
+                prose-blockquote:border-l-4 prose-blockquote:border-indigo-200 prose-blockquote:bg-slate-50 prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:text-slate-600 prose-blockquote:font-normal
                 prose-code:text-indigo-600 prose-code:bg-indigo-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
                 prose-pre:bg-slate-900 prose-pre:shadow-lg
-                prose-li:marker:text-indigo-300
+                prose-li:marker:text-indigo-400
               ">
                 <ReactMarkdown>{data.summary}</ReactMarkdown>
               </article>
             </div>
           )}
 
-          {activeTab === 'latex' && (
-            <div className="min-h-full bg-[#1e293b] text-slate-200 p-6 font-mono text-sm leading-relaxed overflow-auto">
-              <pre><code>{data.latex}</code></pre>
-            </div>
-          )}
-
-          {activeTab === 'json' && (
-            <div className="min-h-full bg-[#1e293b] text-[#a5b4fc] p-6 font-mono text-sm leading-relaxed overflow-auto">
-              <pre><code>{JSON.stringify(data.database, null, 2)}</code></pre>
+          {(activeTab === 'latex' || activeTab === 'json') && (
+            <div className="min-h-full code-bg text-slate-200 p-6 font-mono text-sm leading-relaxed overflow-auto">
+              <pre><code className={activeTab === 'json' ? 'text-[#a5b4fc]' : ''}>{activeContent}</code></pre>
             </div>
           )}
         </div>

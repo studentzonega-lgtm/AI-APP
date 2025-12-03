@@ -61,10 +61,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, disabled }
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div
-        className={`relative group flex flex-col items-center justify-center w-full h-72 rounded-3xl border-2 border-dashed transition-all duration-300 ease-out
+        className={`relative group flex flex-col items-center justify-center w-full h-72 rounded-3xl border border-dashed transition-all duration-300 ease-out
           ${dragActive 
-            ? 'border-indigo-500 bg-indigo-50/50 scale-[1.02] shadow-xl' 
-            : 'border-slate-300 bg-white hover:border-indigo-400 hover:bg-slate-50 hover:shadow-lg'
+            ? 'border-indigo-500 bg-white/80 scale-[1.02] shadow-2xl shadow-indigo-500/10' 
+            : 'border-slate-300 bg-white/60 backdrop-blur-sm hover:border-indigo-400 hover:bg-white/80 hover:shadow-xl hover:shadow-indigo-500/10'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer'}
         `}
@@ -91,11 +91,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, disabled }
           </div>
           
           <h3 className="mb-2 text-lg font-semibold text-slate-700 group-hover:text-indigo-700 transition-colors">
-            {dragActive ? 'Drop to analyze' : 'Upload Research Paper'}
+            {dragActive ? 'Drop to Analyze' : 'Upload Research Paper'}
           </h3>
           
           <p className="mb-4 text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
-            Drag and drop your PDF here, or click to browse files.
+            Drag & drop your PDF here, or click to browse.
           </p>
 
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">

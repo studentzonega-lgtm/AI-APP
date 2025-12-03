@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Sparkles, Github, ArrowRight, Database, FileCode, FileText } from 'lucide-react';
+import { BookOpen, Sparkles, Github, ArrowUpRight, Database, FileCode2, FileText, Bot } from 'lucide-react';
 import { FileUpload } from './components/FileUpload';
 import { ResultsView } from './components/ResultsView';
 import { LoadingState } from './components/LoadingState';
@@ -36,12 +36,13 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden text-slate-900">
       
-      {/* Background Blobs */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="blob top-0 left-1/4 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="blob top-0 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob [animation-delay:2s]"></div>
-        <div className="blob -bottom-32 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob [animation-delay:4s]"></div>
-      </div>
+      {/* Background Gradient */}
+      <div 
+        className="fixed top-0 left-0 w-full h-full -z-10"
+        style={{
+          background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.1), transparent), radial-gradient(ellipse 80% 50% at 50% 120%, rgba(124, 58, 237, 0.1), transparent)"
+        }}
+      ></div>
 
       {/* Navigation */}
       <header className="fixed w-full top-0 z-50 glass border-b border-white/20 transition-all duration-300">
@@ -58,11 +59,11 @@ function App() {
             </span>
           </div>
           <div className="flex items-center gap-6">
-             <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50/80 border border-slate-200/60 shadow-sm backdrop-blur-sm">
-               <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60 shadow-sm backdrop-blur-sm">
+               <Sparkles className="w-4 h-4 text-indigo-500" />
                <span className="text-xs font-semibold text-slate-600 tracking-wide">GEMINI 1.5 PRO</span>
              </div>
-             <a href="#" className="text-slate-400 hover:text-slate-900 transition-colors transform hover:scale-110">
+             <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 transition-colors transform hover:scale-110">
                <Github className="w-6 h-6" />
              </a>
           </div>
@@ -75,21 +76,14 @@ function App() {
         {/* Header Text */}
         {status === AppStatus.IDLE && (
           <div className="text-center mb-16 max-w-4xl mx-auto animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium mb-8 border border-indigo-100">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-              </span>
-              AI-Powered Research Assistant
-            </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight">
-              Research Papers, <br />
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tighter leading-tight">
+              Turn Research Papers into <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">
-                Decoded & Structured.
+                Structured Intelligence
               </span>
             </h1>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10">
-              Transform unstructured PDFs into clear summaries, publication-ready LaTeX, and searchable databases in seconds.
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Upload any PDF research paper. We'll extract a clean summary, convert it to LaTeX, and structure the data for your research database.
             </p>
           </div>
         )}
@@ -99,30 +93,30 @@ function App() {
           <div className="w-full max-w-3xl animate-fade-in-up [animation-delay:200ms]">
             <FileUpload onFileSelect={handleFileSelect} disabled={false} />
             
-            {/* Feature Grid */}
+            {/* Capability Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left">
               {[
                 { 
                   icon: <FileText className="w-6 h-6 text-emerald-500" />, 
                   title: "Smart Summaries", 
-                  desc: "Extracts methodology, results, and limitations into clean markdown." 
+                  desc: "Extract methodology, results, and key findings into clean markdown." 
                 },
                 { 
-                  icon: <FileCode className="w-6 h-6 text-blue-500" />, 
+                  icon: <FileCode2 className="w-6 h-6 text-sky-500" />, 
                   title: "LaTeX Conversion", 
-                  desc: "Perfect math & table formatting ready for Overleaf." 
+                  desc: "Get perfect math and table formatting, ready for your publications." 
                 },
                 { 
                   icon: <Database className="w-6 h-6 text-amber-500" />, 
-                  title: "JSON Database", 
-                  desc: "Structured metadata and sections for your knowledge base." 
+                  title: "JSON for Databases", 
+                  desc: "Output structured data for your personal knowledge base." 
                 },
               ].map((feature, i) => (
-                <div key={i} className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all">
-                  <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm mb-4">
+                <div key={i} className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all">
+                  <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm border border-slate-100 mb-4">
                     {feature.icon}
                   </div>
-                  <h3 className="font-bold text-slate-900 mb-2">{feature.title}</h3>
+                  <h3 className="font-bold text-slate-900 mb-1">{feature.title}</h3>
                   <p className="text-sm text-slate-500 leading-relaxed">{feature.desc}</p>
                 </div>
               ))}
@@ -141,15 +135,15 @@ function App() {
         {status === AppStatus.ERROR && (
           <div className="max-w-xl w-full mx-auto mt-8 p-8 bg-white border border-red-100 rounded-3xl shadow-xl text-center animate-in zoom-in-95">
             <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-3xl font-bold">!</span>
+              <Bot className="w-8 h-8"/>
             </div>
             <h3 className="text-2xl font-bold text-slate-800 mb-4">Analysis Failed</h3>
             <p className="text-slate-500 mb-8 leading-relaxed">{error}</p>
             <button 
               onClick={resetApp}
-              className="px-8 py-3 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="px-8 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 hover:shadow-xl hover:shadow-slate-900/20 transform hover:-translate-y-0.5"
             >
-              Try Another File
+              Upload Another File
             </button>
           </div>
         )}
@@ -157,22 +151,20 @@ function App() {
         {/* Results Section */}
         {status === AppStatus.SUCCESS && result && (
           <div className="w-full">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end mb-8 animate-in slide-in-from-bottom-4">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mb-8 animate-in slide-in-from-bottom-4">
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">
-                    Analysis Complete
-                  </span>
-                </div>
-                <h2 className="text-3xl font-bold text-slate-900">Research Insights</h2>
-                <p className="text-slate-500 mt-1">Review extracted intelligence below.</p>
+                <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider mb-2 inline-block">
+                  Analysis Complete
+                </span>
+                <h2 className="text-3xl font-bold text-slate-900">Extracted Intelligence</h2>
+                <p className="text-slate-500 mt-1">Review the summary, LaTeX source, and structured data below.</p>
               </div>
               <button 
                 onClick={resetApp}
-                className="mt-4 md:mt-0 flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-4 py-2 rounded-lg hover:bg-indigo-100"
+                className="mt-4 md:mt-0 flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
               >
-                <ArrowRight className="w-4 h-4 rotate-180" />
                 Analyze Another Paper
+                <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
             <ResultsView data={result} />
@@ -182,16 +174,14 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-slate-200 bg-white/50 backdrop-blur-md mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <footer className="w-full border-t border-slate-200/80 bg-white/50 backdrop-blur-md mt-auto">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-slate-500 font-medium">
-            &copy; {new Date().getFullYear()} ScholarParse AI.
+            &copy; {new Date().getFullYear()} ScholarParse AI. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm text-slate-400">
-             <span className="hover:text-slate-600 cursor-pointer transition-colors">Privacy</span>
-             <span className="hover:text-slate-600 cursor-pointer transition-colors">Terms</span>
-             <span className="hover:text-slate-600 cursor-pointer transition-colors">API Status</span>
-          </div>
+          <p className="text-sm text-slate-400">
+            Designed for Academic Excellence.
+          </p>
         </div>
       </footer>
     </div>
